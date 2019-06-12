@@ -29,7 +29,6 @@ def get_diff_by_version(lgr,A_V,B_V):
                 result.append(pre)
             else:
                 pass
-		print("get_diff_by_version_result:",result)
         return result
     except Exception as e:
             print("failue by e:",e)
