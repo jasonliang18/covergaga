@@ -17,8 +17,6 @@ def get_diff_by_version(lgr,A_V,B_V):
         obj.wait()
         out_tmp.seek(0)
         lines=out_tmp.readlines()
-        print("get_diff_by_version_lines:",lines)
-
         for value in lines:
             value = value.decode()
             pre=value.split('|')[0].strip()
@@ -111,14 +109,12 @@ def git_diff_by_file(lgr,A_V,B_V,diff_module,all_commit_in_feature_branch):
             obj.wait()
             out_tmp.seek(0)
             lines=out_tmp.readlines()
-            print("git_diff_by_file_lines:",lines)
             i = 0
             flag = 0
             begin_line = 0
             time = 0
             diff_line = 0
             class_diff = []
-
             # for value in lines:
             for idx,value in enumerate(lines):
                 value = value.decode()[:8]
@@ -130,7 +126,6 @@ def git_diff_by_file(lgr,A_V,B_V,diff_module,all_commit_in_feature_branch):
             print("fail by e:",e)
         if class_diff is not None:
             diff[get_module_path]=class_diff
-    print("diff:", type(diff))
     print("git_diff_by_file_diff",diff)
     return diff
 
@@ -149,7 +144,6 @@ def get_project_and_file_path(root_dir,java_file):
                 fileNamePath=os.path.join(parent, fileName)
                 indexNamePath=os.path.join(parent,"index.html")
                 if JavaFileName + ".html" == fileName:
-
                     # print("insert fileName",JavaFileName,fileNamePath)
                     # f=open(fileNamePath)
                     # date=f.read()
@@ -171,7 +165,6 @@ def get_project_and_file_path(root_dir,java_file):
                     # t.close()
                     # os.remove(fileNamePath)
                     # os.rename(tempfile,fileNamePath)
-
                     DiffLineNumber,total_diff_number=Diff_Line_Number(fileNamePath,v)
                     update_Index_Html_File(indexNamePath)
                     insertFileNames=insertFileName+".html"
@@ -223,7 +216,7 @@ def Diff_Line_Number(indexHtmlPath,number):
     total_diff_number=0
     soup = BeautifulSoup(openFile(indexHtmlPath), 'lxml')
     for i in number:
-        s=soup.find("span", id = "L" +str(i))
+        s = soup.find("span", id = "L" +str(i))
         print("s  is ==",s)
         plus = soup.new_string("+")
         if s is not None and s.string is not None:
@@ -294,8 +287,7 @@ def writeFile(index_Html_File_Path,write_data):
 #写入总的覆盖率
 def insert_Total_Index_Html(indexHtmlPath, Name, DiffNum, CrNum):
     fileName = "".join(Name)
-    soup=BeautifulSoup(openFile(indexHtmlPath),'lxml')
-    print("htmlName : ",fileName)
+    soup = BeautifulSoup(openFile(indexHtmlPath),'lxml')
     num=soup.find_all(href=re.compile(fileName))
     print("num is:",num)
     if len(num) >= 2:
@@ -318,7 +310,6 @@ def insert_Total_Index_Html(indexHtmlPath, Name, DiffNum, CrNum):
     except Exception as e:
         # CRN=num
         print("Exception", e)
-
     CR=CRN.find(id='CRN')
     if CR is None:
         total=soup.new_tag('td')
@@ -337,10 +328,8 @@ def insert_Total_Index_Html(indexHtmlPath, Name, DiffNum, CrNum):
         totalCR=soup.new_tag('td')
         totalCR['class']="ctr2"
         totalCR['id']="DiffN"
-        print("diff Number:",DiffNum)
         totalCR.string=str(DiffNum)
         n.append(totalCR)
-        print("diff id new,nember:",n)
     else:
         diff_nem.string=str(DiffNum)
     writeFile(indexHtmlPath,soup)
@@ -362,10 +351,8 @@ def is_main_branch(lgr,app_name):
         obj.wait()
         out_tmp.seek(0)
         br_name=out_tmp.read().decode('utf-8').strip()
-        print("is_main_branch_brname",br_name)
         idx=br_name.rfind('/')
         length=len(br_name)
-        
         if(main_branch == br_name[idx+1:length]):
             return True
         else:
@@ -393,10 +380,8 @@ def get_all_commit_in_current_branch(lgr,is_main_branch,A_V,B_V):
         obj.wait()
         out_tmp.seek(0)
         lines=out_tmp.readlines()
-        print("get_all_commit_in_current_branch_lines:",lines)
         for value in lines:
             result.append(value.decode('utf-8').strip()[:8])
-        print("get_all_commit_in_current_branch_result",result)        
         return result
     except Exception as e:
             print("failue by e:",e)
