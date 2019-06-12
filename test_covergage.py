@@ -407,21 +407,21 @@ def get_all_commit_in_current_branch(lgr,is_main_branch,A_V,B_V):
 
 
 if __name__ == "__main__":
-    # local_git_repoisty_dir=os.getcwd()
-    # local_git_repoisty_dir="/data/jenkins/workspace/workspace/like-android_jacoco_2"
-    # print("local_git_repoisty_dir is :",local_git_repoisty_dir)
-    # A_V=sys.argv[1]
-    # B_V=sys.argv[2]
-    # app_name=sys.argv[3]
-    # # A_V="908031f164e8bcdad8a9bbffb1a40c371c2c3dc7"
-    # # B_V="e9d70e7ce62a9e15b9145357d9c3f20d483a62e6"
-    #
-    # get_version_diff_name=get_diff_by_version(local_git_repoisty_dir, A_V, B_V)
-    # get_all_commit_in_current_branch = get_all_commit_in_current_branch(local_git_repoisty_dir, is_main_branch(local_git_repoisty_dir,app_name), A_V, B_V)
-    # get_diff_file_name_and_lines = git_diff_by_file(local_git_repoisty_dir, A_V, B_V, get_version_diff_name,
-    #                                                 get_all_commit_in_current_branch)
+    local_git_repoisty_dir=os.getcwd()
+    local_git_repoisty_dir="/data/jenkins/workspace/workspace/like-android_jacoco_2"
+    print("local_git_repoisty_dir is :",local_git_repoisty_dir)
+    A_V=sys.argv[1]
+    B_V=sys.argv[2]
+    app_name=sys.argv[3]
+    # A_V="908031f164e8bcdad8a9bbffb1a40c371c2c3dc7"
+    # B_V="e9d70e7ce62a9e15b9145357d9c3f20d483a62e6"
+
+    get_version_diff_name=get_diff_by_version(local_git_repoisty_dir, A_V, B_V)
+    get_all_commit_in_current_branch = get_all_commit_in_current_branch(local_git_repoisty_dir, is_main_branch(local_git_repoisty_dir,app_name), A_V, B_V)
+    get_diff_file_name_and_lines = git_diff_by_file(local_git_repoisty_dir, A_V, B_V, get_version_diff_name,
+                                                    get_all_commit_in_current_branch)
     # get_diff_file_name_and_lines=git_diff_by_file(local_git_repoisty_dir, A_V, B_V, get_version_diff_name)
-    local_git_repoisty_dir = "/Users/billli/Downloads/jacocoReport/html"
-    get_diff_file_name_and_lines = {'./iHeimaLib/src/sg/bigo/live/protocol/filter/FetchFiltersByGroupIdProtocol.java': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151]}
+    # local_git_repoisty_dir = "/Users/billli/Downloads/jacocoReport/html"
+    # get_diff_file_name_and_lines = {'./iHeimaLib/src/sg/bigo/live/protocol/filter/FetchFiltersByGroupIdProtocol.java': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151]}
     get_project_and_file_path(local_git_repoisty_dir,get_diff_file_name_and_lines)
 
