@@ -166,6 +166,9 @@ def get_project_and_file_path(root_dir,java_file):
                     # os.rename(tempfile,fileNamePath)
                     # java中变更行数材，插入+到对应java.html文件中，并返回覆盖行数、总变更数
                     DiffLineNumber,total_diff_number=Diff_Line_Number(fileNamePath,v)
+                    # 没有新增代码则不做为0插入（代码有新增，但不是主要方法，主要为常量、import包、空格等）
+                    if total_diff_number == 0:
+                        continue
                     update_Index_Html_File(indexNamePath)
                     insertFileNames=insertFileName+".html"
                     # 插入结果到对应包名下（java.html文件统计页）index.html文件
