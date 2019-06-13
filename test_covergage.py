@@ -169,6 +169,7 @@ def get_project_and_file_path(root_dir,java_file):
                     # 没有新增代码则不做为0插入（代码有新增，但不是主要方法，主要为常量、import包、空格等）
                     if total_diff_number == 0:
                         continue
+                    # 更改index.hmtl文件布局，在后面插入列
                     update_Index_Html_File(indexNamePath)
                     insertFileNames=insertFileName+".html"
                     # 插入结果到对应包名下（java.html文件统计页）index.html文件
@@ -303,15 +304,14 @@ def insert_Total_Index_Html(indexHtmlPath, Name, DiffNum, CrNum):
         for i,j in enumerate(num):
             if j.string != fileName:
                 del num[i]
-        print("inset html file name:",j.string,"  num string:",num)
+        print("inset html file name is:",num)
     elif len(num) == 0:
-        fileName_new ="%s(\s\w+)?"%(fileName)[:-5]
-        num_new = soup.find_all(attrs={"href": re.compile(fileName_new)})
-        for i,j in enumerate(num_new):
-            j["href"]=fileName[:-5]+".java.html"
-        print ("num_new:",num_new)
-        writeFile(indexHtmlPath, soup)
-        return
+        fileName_new = "%s(\s\w+)?"%(fileName)[:-5]
+        num = soup.find_all(attrs={"href": re.compile(fileName_new)})
+        print("file name not find and replace by new num:", num)
+        if len(num) == 0:
+            print("this file ont find:", Name)
+            return
     print("href is :", num)
     try:
         CRN=num[0].parent.parent
