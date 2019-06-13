@@ -1,0 +1,37 @@
+[33mcommit 3da84f97ca8c8937a8499eb0a99bfd531b69b117[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: longpufu <longpufu@bigo.sg>
+Date:   Wed Jun 12 21:31:16 2019 +0800
+
+    去掉部分log打印
+
+[33mcommit 93938d7a091373ed5118ee156378fcb2f0842592[m
+Author: longpufu <longpufu@bigo.sg>
+Date:   Wed Jun 12 21:21:04 2019 +0800
+
+    修提交格式问题
+
+[33mcommit 135ba7941187f5b3335710125f23404c487caed1[m
+Author: billli <240880759@qq.com>
+Date:   Wed Jun 12 16:25:50 2019 +0800
+
+    改掉报错
+
+[33mcommit b96aa8ef05c0e5385102b8be47e40fa00a9dc5a9[m
+Author: billli <240880759@qq.com>
+Date:   Wed Jun 12 16:13:45 2019 +0800
+
+    修复报错
+    修复逻辑漏洞
+
+[33mcommit cc6cadc7c32d42808e5d3f38f8cd1e55e52966d0[m
+Author: billli <240880759@qq.com>
+Date:   Wed Jun 12 16:11:46 2019 +0800
+
+    修复报错
+    修复逻辑漏洞
+
+[33mcommit c85089bdd0ec342af0772c3c731e9a7e24950d8c[m
+Author: minyi <919218068@qq.com>
+Date:   Mon Jun 10 15:27:25 2019 +0800
+
+    python covergaga.py

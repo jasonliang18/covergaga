@@ -124,7 +124,7 @@ def git_diff_by_file(lgr,A_V,B_V,diff_module,all_commit_in_feature_branch):
                     continue
         except Exception as e:
             print("fail by e:",e)
-        if class_diff is not None:
+        if len(class_diff) != 0:
             diff[get_module_path]=class_diff
     print("git_diff_by_file_diff",diff)
     return diff
@@ -137,7 +137,6 @@ def get_project_and_file_path(root_dir,java_file):
         insertFileName=JavaFileName[:-5]
         ValueLen=len(v)
         print("value len:", ValueLen)
-
         # insert +
         for parent, dirnames, fileNames in os.walk(root_dir):
             for fileName in fileNames:
@@ -165,15 +164,20 @@ def get_project_and_file_path(root_dir,java_file):
                     # t.close()
                     # os.remove(fileNamePath)
                     # os.rename(tempfile,fileNamePath)
+                    # java中变更行数材，插入+到对应java.html文件中，并返回覆盖行数、总变更数
                     DiffLineNumber,total_diff_number=Diff_Line_Number(fileNamePath,v)
                     update_Index_Html_File(indexNamePath)
                     insertFileNames=insertFileName+".html"
+                    # 插入结果到对应包名下（java.html文件统计页）index.html文件
                     insert_Total_Index_Html(indexNamePath, insertFileNames, total_diff_number, DiffLineNumber)
+                    # 插入包路径下index.html 覆盖统计
                     totalDiffLine,totalTRLine=update_Total_Html(indexNamePath,total_diff_number,DiffLineNumber)
                     indexFilePath=os.path.dirname(parent)+"/index.html"
                     insertIndexFileName=(fileNamePath.split('/')[-2].split())
                     update_Index_Html_File(indexFilePath)
+                    # 根目录index.hmtl插入包代码覆盖、和新增
                     insert_Total_Index_Html(indexFilePath, insertIndexFileName, totalDiffLine, totalTRLine)
+                    # 统计所有新增和覆盖结果
                     get_diff_total_line(indexFilePath)
 
 
@@ -220,18 +224,18 @@ def Diff_Line_Number(indexHtmlPath,number):
         print("s  is ==",s)
         plus = soup.new_string("+")
         if s is not None and s.string is not None:
+            total_diff_number = total_diff_number + 1
             if s['class'][0] == 'fc':
                 diff_number = diff_number + 1
                 # s.string.insert_before(plus)
-            elif s['class'][0] == 'pc':
-                total_diff_number = total_diff_number + 1
-                # s.string.insert_before(plus)
-            else:
-                total_diff_number=total_diff_number + 1
-                print("s.string is:",s.string)
+            # elif s['class'][0] == 'pc':
+            #     total_diff_number = total_diff_number + 1
+            #     # s.string.insert_before(plus)
+            # else:
+            #     total_diff_number = total_diff_number + 1
+            #     print("s.string is:",s.string)
             s.string.insert_before(plus)
     writeFile(indexHtmlPath, soup)
-    total_diff_number = total_diff_number + diff_number
     return diff_number,total_diff_number
 
 #html路径下的diff列插入
@@ -288,7 +292,9 @@ def writeFile(index_Html_File_Path,write_data):
 def insert_Total_Index_Html(indexHtmlPath, Name, DiffNum, CrNum):
     fileName = "".join(Name)
     soup = BeautifulSoup(openFile(indexHtmlPath),'lxml')
-    num=soup.find_all(href=re.compile(fileName))
+    num = soup.find_all(href = re.compile(fileName))
+    if len(num) == 0:
+        pass  # 修改没有找到逻辑
     print("num is:",num)
     if len(num) >= 2:
         for i,j in enumerate(num):
@@ -342,7 +348,6 @@ def is_main_branch(lgr,app_name):
         main_branch="develop"    
 
     cmd_get_origin_br_name=['cd %s; git rev-parse --abbrev-ref --symbolic-full-name @{u}'%(lgr)]
-
     result=[]
     try:
         out_tmp=tempfile.SpooledTemporaryFile(max_size=10*1000)
