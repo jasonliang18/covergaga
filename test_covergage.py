@@ -54,7 +54,7 @@ def git_diff_by_file(lgr, A_V, B_V, diff_module, all_commit_in_feature_branch):
         print("classname:", classname)
         get_module_path = subprocess.getoutput('cd %s;find . -name "%s"' % (lgr, classname))
         print("module_path:", get_module_path)
-        cmd = ['cd %s; git blame %s' % (local_git_repoisty_dir, get_module_path)]
+        cmd = ['cd %s; git blame %s' % (lgr, get_module_path)]
         try:
             out_tmp = tempfile.SpooledTemporaryFile(max_size=10 * 1000)
             fileno = out_tmp.fileno()
@@ -187,8 +187,11 @@ def Diff_Line_Number(indexHtmlPath, number):
     return diff_number, total_diff_number
 
 
-# html路径下的diff列插入
 def update_Index_Html_File(htmlPath):
+    """
+    html路径下的diff和covered列插入.
+    :param htmlPath: Java.html 文件.
+    """
     soup = BeautifulSoup(openFile(htmlPath), 'lxml')
     Diff_text = soup.find_all(text="Diff")
     if Diff_text:
@@ -236,8 +239,13 @@ def writeFile(index_Html_File_Path, write_data):
     file.close()
 
 
-# 写入总的覆盖率
 def insert_Total_Index_Html(indexHtmlPath, Name, DiffNum, CrNum):
+    """
+    html写入总的增量和覆盖代码数量.
+    :param indexHtmlPath: index.html 文件.
+    :param DiffNum: 增量代码数量.
+    :param CrNum: 覆盖代码数量.
+    """
     fileName = "".join(Name)
     soup = BeautifulSoup(openFile(indexHtmlPath), 'lxml')
     num = soup.find_all(href=re.compile(fileName))
@@ -287,6 +295,12 @@ def insert_Total_Index_Html(indexHtmlPath, Name, DiffNum, CrNum):
 
 
 def is_main_branch(lgr, app_name):
+    """
+        判断是否为主分支.
+        :param lgr: git 项目的文件夹.
+        :param app_name: APP 名称.
+        :return 返回Boolean.
+    """
     if (app_name == "Bigolive"):
         main_branch = "bigo_show_develop"
     else:
@@ -315,8 +329,15 @@ def is_main_branch(lgr, app_name):
             out_tmp.close()
 
 
-# 获取两个commitid之间所有当前分支的commitid（非主分支不包括merge过来的commitid）
 def get_all_commit_in_current_branch(lgr, is_main_branch, A_V, B_V):
+    """
+    剔除两个 commitid 之间分支非主分支commitid.
+    :param lgr: git 项目的文件夹.
+    :param A_V: 提交 common_start_id 的 hash.
+    :param B_V: 提交 common_end_id 的 hash.
+    :param is_main_branch: 是否为主分支.
+    :return: 两个commitid之间所有当前分支的commitid.
+    """
     if (is_main_branch):
         cmd_get_all_commit = ['cd %s; git log %s...%s --format="%%H" ' % (lgr, A_V, B_V)]
     else:
