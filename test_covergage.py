@@ -362,15 +362,11 @@ def get_all_commit_in_current_branch(lgr, is_main_branch, A_V, B_V):
 
 
 if __name__ == "__main__":
-    # local_git_repoisty_dir = os.getcwd()
     local_git_repoisty_dir = "/data/jenkins/workspace/workspace/like-android_jacoco_2"
     print("local_git_repoisty_dir is :", local_git_repoisty_dir)
     A_V = sys.argv[1]
     B_V = sys.argv[2]
     app_name = sys.argv[3]
-    # A_V="908031f164e8bcdad8a9bbffb1a40c371c2c3dc7"
-    # B_V="e9d70e7ce62a9e15b9145357d9c3f20d483a62e6"
-
     get_version_diff_name = get_diff_by_version(local_git_repoisty_dir, A_V, B_V)
     get_all_commit_in_current_branch = get_all_commit_in_current_branch(local_git_repoisty_dir,
                                                                         is_main_branch(local_git_repoisty_dir,
