@@ -20,9 +20,6 @@ def get_diff_by_version(lgr,A_V,B_V):
         for value in lines:
             value = value.decode()
             pre=value.split('|')[0].strip()
-            #print(pre)
-            # if "SXGCDS" in pre:
-            #     pass
             if pre[-5:]==".java":
                 result.append(pre)
             else:
@@ -34,73 +31,14 @@ def get_diff_by_version(lgr,A_V,B_V):
             if out_tmp:
                 out_tmp.close()
 
-
-#通过传入版本差异module，找到对应的文件
-# def git_diff_by_file(lgr,A_V,B_V,diff_module):
-#     diff={}
-#     for mp in diff_module:
-#         classname=mp.split('/')[-1].strip()
-#         # print("classname:",classname)
-#         # get_module_cmd=['cd %s;find . -name "%s"'%(lgr,classname)]
-#         # get_module_path=subprocess.Popen(get_module_cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True).stdout.read()
-#         # cmd=['cd %s; git diff %s %s -- %s'%(lgr, A_V, B_V, get_module_path)]
-#         get_module_path = subprocess.getoutput('cd %s;find . -name "%s"' %(lgr, classname))
-#         cmd = ['cd %s; git diff %s %s -- %s' % (local_git_repoisty_dir, A_V, B_V, get_module_path)]
-#         try:
-#             out_tmp=tempfile.SpooledTemporaryFile(max_size=10*1000)
-#             fileno=out_tmp.fileno()
-#             obj=subprocess.Popen(cmd, stdout=fileno, stderr=fileno, shell=True)
-#             obj.wait()
-#             out_tmp.seek(0)
-#             lines=out_tmp.readlines()
-#             i = 0
-#             flag = 0
-#             begin_line = 0
-#             time = 0
-#             diff_line = 0
-#             class_diff = []
-#
-#             for value in lines:
-#                 value = value.decode()
-#                 if "new file" in value:
-#                     class_diff.append(0)
-#                     break
-#                 elif "@@" in value :
-#                     begin_line=0
-#                     flag=0
-#                     begin_line=value.split('@@')[1].split('+')[1].split(',')[0]
-#                     i=i+1
-#                     flag=i
-#                 elif value.startswith('+') and "+++" not in value:
-#                     i=i+1
-#                     diff_line=int(begin_line) + i - int(flag) -1
-#                     class_diff.append(diff_line)
-#                 elif value.startswith('-') and "---" not in value:
-#                     pass
-#                 else:
-#                     i=i+1
-#         except Exception as e:
-#             print("fail by e:",e)
-#
-#         diff[get_module_path]=class_diff
-#     print("diff:", type(diff))
-#     return diff
-
-
-#获取项目与差异文件路径
-
 #通过传入版本差异module，找到对应的文件
 def git_diff_by_file(lgr,A_V,B_V,diff_module,all_commit_in_feature_branch):
     diff={}
     for mp in diff_module:
         classname=mp.split('/')[-1].strip()
         print("classname:",classname)
-        # get_module_cmd=['cd %s;find . -name "%s"'%(lgr,classname)]
-        # get_module_path=subprocess.Popen(get_module_cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True).stdout.read()
-        # cmd=['cd %s; git diff %s %s -- %s'%(lgr, A_V, B_V, get_module_path)]
         get_module_path = subprocess.getoutput('cd %s;find . -name "%s"' %(lgr, classname))
         print("module_path:",get_module_path)
-        # cmd = ['cd %s; git diff %s %s -- %s' % (local_git_repoisty_dir, A_V, B_V, get_module_path)]
         cmd = ['cd %s; git blame %s' % (local_git_repoisty_dir, get_module_path)]
         try:
             out_tmp=tempfile.SpooledTemporaryFile(max_size=10*1000)
@@ -109,11 +47,6 @@ def git_diff_by_file(lgr,A_V,B_V,diff_module,all_commit_in_feature_branch):
             obj.wait()
             out_tmp.seek(0)
             lines=out_tmp.readlines()
-            i = 0
-            flag = 0
-            begin_line = 0
-            time = 0
-            diff_line = 0
             class_diff = []
             # for value in lines:
             for idx,value in enumerate(lines):
@@ -143,27 +76,6 @@ def get_project_and_file_path(root_dir,java_file):
                 fileNamePath=os.path.join(parent, fileName)
                 indexNamePath=os.path.join(parent,"index.html")
                 if JavaFileName + ".html" == fileName:
-                    # print("insert fileName",JavaFileName,fileNamePath)
-                    # f=open(fileNamePath)
-                    # date=f.read()
-                    # f.close()
-                    # n=0
-                    # tempfile=os.path.join(parent,"tempFile.html")
-                    # with open(fileNamePath,"r+") as f:
-                    #     for x in f:
-                    #         n+=1
-                    #         if n in v:
-                    #             print("N value is:",n)
-                    #             result="+ " + x
-                    #             with open(tempfile,"a") as t:
-                    #                 t.write(result)
-                    #         else:
-                    #             x=" " + x
-                    #             with open(tempfile,"a") as t:
-                    #                 t.write(x)
-                    # t.close()
-                    # os.remove(fileNamePath)
-                    # os.rename(tempfile,fileNamePath)
                     # java中变更行数材，插入+到对应java.html文件中，并返回覆盖行数、总变更数
                     DiffLineNumber,total_diff_number=Diff_Line_Number(fileNamePath,v)
                     # 没有新增代码则不做为0插入（代码有新增，但不是主要方法，主要为常量、import包、空格等）
@@ -184,7 +96,6 @@ def get_project_and_file_path(root_dir,java_file):
                     # 统计所有新增和覆盖结果
                     get_diff_total_line(indexFilePath)
 
-
 #获取差总共差异行数
 def get_diff_total_line(indexHtmlPath):
     DiffNum = 0
@@ -204,7 +115,6 @@ def get_diff_total_line(indexHtmlPath):
         # print(totalCRN)
         totalCRN.string = str(CRNum)
     writeFile(indexHtmlPath, soup)
-
 
 #写入内层index文件，total、Diff and Covered
 def update_Total_Html(indexHtmlPath, DiffNum, CrNum):
@@ -231,13 +141,6 @@ def Diff_Line_Number(indexHtmlPath,number):
             total_diff_number = total_diff_number + 1
             if s['class'][0] == 'fc':
                 diff_number = diff_number + 1
-                # s.string.insert_before(plus)
-            # elif s['class'][0] == 'pc':
-            #     total_diff_number = total_diff_number + 1
-            #     # s.string.insert_before(plus)
-            # else:
-            #     total_diff_number = total_diff_number + 1
-            #     print("s.string is:",s.string)
             s.string.insert_before(plus)
     writeFile(indexHtmlPath, soup)
     return diff_number,total_diff_number
@@ -249,7 +152,6 @@ def update_Index_Html_File(htmlPath):
     if Diff_text:
         print("pass")
     else:
-        # print(Diff_text)
         diff_line_tag = soup.new_tag('td')
         diff_line_tag['class'] = "sortable ctr2"
         diff_line_tag.string = "Diff"
@@ -257,7 +159,6 @@ def update_Index_Html_File(htmlPath):
         diff_line_tag['onclick'] = "toggleSort(this)"
         diff = soup.find_all(text="Missed")
         diff_ = diff[-1].find_next('td')
-        # print "diff_",diff_
         totalNum = soup.new_tag('td')
         totalNum['class'] = "ctr2"
         totalNum['id'] = "u"
@@ -289,8 +190,6 @@ def writeFile(index_Html_File_Path,write_data):
     file=open(index_Html_File_Path,'w')
     file.write(str(write_data))
     file.close()
-
-
 
 #写入总的覆盖率
 def insert_Total_Index_Html(indexHtmlPath, Name, DiffNum, CrNum):
