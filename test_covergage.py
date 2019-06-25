@@ -120,7 +120,7 @@ def get_project_and_file_path(root_dir, java_file):
 
 def get_diff_total_line(indexHtmlPath):
     """
-    统计所有包的代码覆盖和修改行数并写入index.
+    统计所有包的代码覆盖和修改行数和未完全覆盖行数并写入index.
     :param indexHtmlPath: jacoco 根目录index.html .
     """
     DiffNum = 0
