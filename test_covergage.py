@@ -263,7 +263,7 @@ def writeFile(index_Html_File_Path, write_data):
 
 def insert_Total_Index_Html(indexHtmlPath, Name, DiffNum, CrNum, ImperNum):
     """
-    html写入总的增量和覆盖代码数量.
+    html写入总的增量和覆盖代码数量和未完全覆盖数量.
     :param indexHtmlPath: index.html 文件.
     :param DiffNum: 增量代码数量.
     :param CrNum: 覆盖代码数量.
