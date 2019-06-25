@@ -89,8 +89,8 @@ def get_project_and_file_path(root_dir, java_file):
         print("K is:", k, "V is:", v)
         JavaFileName = k.split('/')[-1].strip()
         insertFileName = JavaFileName[:-5]
-        ValueLen = len(v)
-        print("value len:", ValueLen)
+        # ValueLen = len(v)
+        # print("value len:", ValueLen)
         # insert +
         for parent, dirnames, fileNames in os.walk(root_dir):
             for fileName in fileNames:
@@ -98,7 +98,7 @@ def get_project_and_file_path(root_dir, java_file):
                 indexNamePath = os.path.join(parent, "index.html")
                 if JavaFileName + ".html" == fileName:
                     # java中变更行数材，插入+到对应java.html文件中，并返回覆盖行数、总变更数
-                    DiffLineNumber, total_diff_number = Diff_Line_Number(fileNamePath, v)
+                    DiffLineNumber, total_diff_number, imperfect_number = Diff_Line_Number(fileNamePath, v)
                     # 没有新增代码则不做为0插入（代码有新增，但不是主要方法，主要为常量、import包、空格等）
                     if total_diff_number == 0:
                         continue
@@ -106,14 +106,14 @@ def get_project_and_file_path(root_dir, java_file):
                     update_Index_Html_File(indexNamePath)
                     insertFileNames = insertFileName + ".html"
                     # 插入结果到对应包名下（java.html文件统计页）index.html文件
-                    insert_Total_Index_Html(indexNamePath, insertFileNames, total_diff_number, DiffLineNumber)
+                    insert_Total_Index_Html(indexNamePath, insertFileNames, total_diff_number, DiffLineNumber, imperfect_number)
                     # 插入包路径下index.html 覆盖统计
-                    totalDiffLine, totalTRLine = update_Total_Html(indexNamePath, total_diff_number, DiffLineNumber)
+                    totalDiffLine, totalTRLine, totalIMPLine = update_Total_Html(indexNamePath, total_diff_number, DiffLineNumber, imperfect_number)
                     indexFilePath = os.path.dirname(parent) + "/index.html"
                     insertIndexFileName = (fileNamePath.split('/')[-2].split())
                     update_Index_Html_File(indexFilePath)
                     # 根目录index.html插入包代码覆盖、和新增
-                    insert_Total_Index_Html(indexFilePath, insertIndexFileName, totalDiffLine, totalTRLine)
+                    insert_Total_Index_Html(indexFilePath, insertIndexFileName, totalDiffLine, totalTRLine, totalIMPLine)
                     # 统计所有新增和覆盖结果
                     get_diff_total_line(indexFilePath)
 
@@ -127,7 +127,7 @@ def get_diff_total_line(indexHtmlPath):
     soup = BeautifulSoup(openFile(indexHtmlPath), 'lxml')
     #对应包的修改行数
     a = soup.find_all(id="DiffN")
-    # print a
+
     for k in a:
         DiffNum += int(k.string)
         totalDiffNum = soup.find(id="u")
@@ -137,20 +137,24 @@ def get_diff_total_line(indexHtmlPath):
         b = soup.find_all(id="CRN")
     for i in b:
         CRNum += int(i.string)
-        # print("CRNum:", CRNum)
         totalCRN = soup.find(id="TCR")
-        # print(totalCRN)
         totalCRN.string = str(CRNum)
+        IMPNum = 0
+        c = soup.find_all(id="v")
+    for j in c:
+        IMPNum += int(j.string)
+        IMPCRN = soup.find(id="IMP")
+        IMPCRN.string = str(IMPNum)
     writeFile(indexHtmlPath, soup)
 
 
-def update_Total_Html(indexHtmlPath, DiffNum, CrNum):
+def update_Total_Html(indexHtmlPath, DiffNum, CrNum, ImpNum):
     """
     jacoco 报告包目录下的 index.html 文件插入覆盖和新增统计行数
     :param indexHtmlPath: 包目录下的 index.html 文件.
     :param DiffNum: 增量代码行数.
     :param CrNum: 覆盖代码行数.
-    :return 返回当前包的增量和覆盖代码总行数
+    :return 返回当前包的增量和覆盖代码总行数和未完全覆盖行数
     """
     soup = BeautifulSoup(openFile(indexHtmlPath), 'lxml')
     num = soup.find(id="u")
@@ -159,8 +163,11 @@ def update_Total_Html(indexHtmlPath, DiffNum, CrNum):
     CR = soup.find(id="TCR")
     CR.string = str(int(CR.string) + CrNum)
     CR.string = (CR.string)
+    IMP = soup.find(id="IMP")
+    IMP.string = str(int(IMP.string) + ImpNum)
+    IMP.string = (IMP.string)
     writeFile(indexHtmlPath, soup)
-    return num.string, CR.string
+    return num.string, CR.string, IMP.string
 
 
 # 获取差异的行数
@@ -169,27 +176,30 @@ def Diff_Line_Number(indexHtmlPath, number):
     java类中变更行数材，插入+到对应java.html文件中.
     :param indexHtmlPath: Java.html 文件.
     :param number: 当前 java 文件增量代码行数.
-    :return 返回当前 Java 类的覆盖和增量行数.
+    :return 返回当前 Java 类的覆盖和增量行数和未完全覆盖行数.
     """
     diff_number = 0
     total_diff_number = 0
+    imperfect_number = 0
     soup = BeautifulSoup(openFile(indexHtmlPath), 'lxml')
     for i in number:
         s = soup.find("span", id="L" + str(i))
-        print("s  is ==", s)
+        # print("s  is ==", s)
         plus = soup.new_string("+")
         if s is not None and s.string is not None:
             total_diff_number = total_diff_number + 1
             if s['class'][0] == 'fc':
                 diff_number = diff_number + 1
+            elif s['class'][0] == 'pc':
+                imperfect_number = imperfect_number + 1
             s.string.insert_before(plus)
     writeFile(indexHtmlPath, soup)
-    return diff_number, total_diff_number
+    return diff_number, total_diff_number, imperfect_number
 
 
 def update_Index_Html_File(htmlPath):
     """
-    html路径下的diff和covered列插入.
+    html路径下的diff、未完全覆盖和covered列插入.
     :param htmlPath: Java.html 文件.
     """
     soup = BeautifulSoup(openFile(htmlPath), 'lxml')
@@ -204,6 +214,16 @@ def update_Index_Html_File(htmlPath):
         diff_line_tag['onclick'] = "toggleSort(this)"
         diff = soup.find_all(text="Missed")
         diff_ = diff[-1].find_next('td')
+        imperfect_number_tag = soup.new_tag('td')
+        imperfect_number_tag['class'] = "sortable ctr2"
+        imperfect_number_tag.string = "Imper"
+        imperfect_number_tag['id'] = 'o'
+        imperfect_number_tag['onclick'] = "toggleSort(this)"
+        inperfect_ = diff[-2].find_next('td')
+        imperfect_num = soup.new_tag('td')
+        imperfect_num['class'] = "ctr2"
+        imperfect_num['id'] = "IMP"
+        imperfect_num.string = str("0")
         totalNum = soup.new_tag('td')
         totalNum['class'] = "ctr2"
         totalNum['id'] = "u"
@@ -220,9 +240,11 @@ def update_Index_Html_File(htmlPath):
         CR['id'] = "CR"
         CR['onclick'] = "toggleSort(this)"
         total.append(totalCR)
+        total.append(imperfect_num)
         total.append(totalNum)
         diff_.insert_after(diff_line_tag)
         diff_.append(CR)
+        diff_.append(imperfect_number_tag)
         writeFile(htmlPath, soup)
 
 
@@ -239,12 +261,13 @@ def writeFile(index_Html_File_Path, write_data):
     file.close()
 
 
-def insert_Total_Index_Html(indexHtmlPath, Name, DiffNum, CrNum):
+def insert_Total_Index_Html(indexHtmlPath, Name, DiffNum, CrNum, ImperNum):
     """
     html写入总的增量和覆盖代码数量.
     :param indexHtmlPath: index.html 文件.
     :param DiffNum: 增量代码数量.
     :param CrNum: 覆盖代码数量.
+    :param ImperNum: 不完全覆盖代码数量.
     """
     fileName = "".join(Name)
     soup = BeautifulSoup(openFile(indexHtmlPath), 'lxml')
@@ -262,7 +285,7 @@ def insert_Total_Index_Html(indexHtmlPath, Name, DiffNum, CrNum):
         if len(num) == 0:
             print("this file ont find:", Name)
             return
-    print("href is :", num)
+    # print("href is :", num)
     try:
         CRN = num[0].parent.parent
         print("CRN.parent.parent is ：", CRN)
@@ -274,13 +297,22 @@ def insert_Total_Index_Html(indexHtmlPath, Name, DiffNum, CrNum):
         total = soup.new_tag('td')
         total['class'] = "ctr2"
         total['id'] = "CRN"
-        print("CRNum", CrNum)
         total.string = str(CrNum)
         CRN.append(total)
-        print("CRN is new:", CRN)
     else:
         CR.string = str(CrNum)
 
+    m = num[0].parent.parent
+    imper_nem = m.find(id="v")
+    if imper_nem is None:
+        imperCR = soup.new_tag('td')
+        imperCR['class'] = "ctr2"
+        imperCR['id'] = "v"
+        imperCR.string = str(ImperNum)
+        print ("ImperNum", ImperNum)
+        m.append(imperCR)
+    else:
+        imper_nem.string = str(ImperNum)
     n = num[0].parent.parent
     diff_nem = n.find(id="DiffN")
     if diff_nem is None:
@@ -373,7 +405,7 @@ if __name__ == "__main__":
                                                                                        app_name), A_V, B_V)
     get_diff_file_name_and_lines = git_diff_by_file(local_git_repoisty_dir, A_V, B_V, get_version_diff_name,
                                                     get_all_commit_in_current_branch)
-    # get_diff_file_name_and_lines=git_diff_by_file(local_git_repoisty_dir, A_V, B_V, get_version_diff_name)
+    get_diff_file_name_and_lines=git_diff_by_file(local_git_repoisty_dir, A_V, B_V, get_version_diff_name)
     # local_git_repoisty_dir = "/Users/billli/Downloads/jacocoReport/html"
-    # get_diff_file_name_and_lines = {'./iHeimaLib/src/sg/bigo/live/protocol/filter/FetchFiltersByGroupIdProtocol.java': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151]}
+    # get_diff_file_name_and_lines = {'./iHeima/com/yy/iheima/util/BitmapUtil.java': [32, 43, 657, 658, 659, 661, 662],'./iHeimaLib/src/sg/bigo/live/protocol/filter/FetchFiltersByGroupIdProtocol.java': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151]}
     get_project_and_file_path(local_git_repoisty_dir, get_diff_file_name_and_lines)
