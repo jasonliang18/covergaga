@@ -84,14 +84,12 @@ def get_project_and_file_path(root_dir, java_file):
     :param root_dir: git 项目的文件夹（jacoco 报告文件夹）.
     :param java_file: 改变的Java 的文件名字和修改的行数["a.java":[1,2,3],"b.java":[4,5]].
     """
-    print("value:", java_file.values())
+    # print("value:", java_file)
     for k, v in java_file.items():
         print("K is:", k, "V is:", v)
         JavaFileName = k.split('/')[-1].strip()
         insertFileName = JavaFileName[:-5]
         # ValueLen = len(v)
-        # print("value len:", ValueLen)
-        # insert +
         for parent, dirnames, fileNames in os.walk(root_dir):
             for fileName in fileNames:
                 fileNamePath = os.path.join(parent, fileName)
@@ -111,6 +109,10 @@ def get_project_and_file_path(root_dir, java_file):
                     totalDiffLine, totalTRLine, totalIMPLine = update_Total_Html(indexNamePath, total_diff_number, DiffLineNumber, imperfect_number)
                     indexFilePath = os.path.dirname(parent) + "/index.html"
                     insertIndexFileName = (fileNamePath.split('/')[-2].split())
+                    # 增加一层判断，路径名不对的排除掉
+                    k_new = '.'.join(k.split('/')[3:-1])
+                    if insertIndexFileName[0] != k_new:
+                        continue
                     update_Index_Html_File(indexFilePath)
                     print ("indexFilePathNum:",indexFilePath,totalDiffLine, totalTRLine, totalIMPLine)
                     # 根目录index.html插入包代码覆盖、和新增
@@ -310,7 +312,6 @@ def insert_Total_Index_Html(indexHtmlPath, Name, DiffNum, CrNum, ImperNum):
         imperCR['class'] = "ctr2"
         imperCR['id'] = "v"
         imperCR.string = str(ImperNum)
-        print ("ImperNum", ImperNum)
         m.append(imperCR)
     else:
         imper_nem.string = str(ImperNum)
@@ -406,6 +407,6 @@ if __name__ == "__main__":
                                                                                        app_name), A_V, B_V)
     get_diff_file_name_and_lines = git_diff_by_file(local_git_repoisty_dir, A_V, B_V, get_version_diff_name,
                                                     get_all_commit_in_current_branch)
-    # local_git_repoisty_dir = "/Users/billli/Downloads/jacoco/jacocoReport/html"
-    # get_diff_file_name_and_lines = {'./iHeimaLib/src/com/yy/iheima/util/DeepLinkUtil.java': [17, 28, 287, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299, 300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317],'./iHeimaLib/src/sg/bigo/live/protocol/filter/FetchFiltersByGroupIdProtocol.java': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151]}
+    # local_git_repoisty_dir = "/Users/billli/Downloads/reports/jacoco/jacocoReport/html"
+    # get_diff_file_name_and_lines = {'./iHeima/src/sg/bigo/live/produce/record/filter/RecorderFilterDialog.java': [18, 103, 104, 370, 683, 684, 685, 686, 899, 900, 901, 902, 903, 904, 905, 906, 907], './iHeima/src/sg/bigo/live/produce/record/filter/make_up/MakeUpCategory.java': [38, 53, 92, 93, 94, 95, 96, 97, 98, 119, 135, 224, 225, 226, 250, 251, 252, 253, 254], './iHeimaLib/src/sg/bigo/live/pref/RecordPrefStatus.java': [12, 178, 179, 180], './iHeima/src/sg/bigo/live/produce/record/sensear/STFaceHandler.java': [920, 921, 922, 923], './iHeima/src/sg/bigo/live/produce/record/filter/make_up/MakeUpCategoryAdapter.java': [9, 36, 91, 92, 93, 94, 95, 96, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199], './iHeima/src/sg/bigo/live/produce/record/helper/RecordWarehouse.java': [418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 775, 776, 782, 786, 789, 793, 800, 825], './iHeima/src/sg/bigo/live/produce/record/VideoRecordActivity.java': [20, 38, 39, 52, 81, 83, 1236, 1800, 1992, 1993, 1994, 1995, 2599, 2600, 2601, 2602, 2603, 2604, 2605, 2606, 2607, 2608, 2609, 2610, 2611, 2612, 2613, 2614, 2615, 2616, 2617, 2618, 2619, 2620, 2621, 2622, 2623, 2624, 2625, 2626, 2627, 2628, 2629, 2630, 2631, 2632, 2633, 2634, 2635, 2636, 2637, 2638, 2639, 2640, 2641, 2642, 2643, 2644, 2645, 2646, 2647], './iHeima/src/sg/bigo/live/produce/record/filter/make_up/MakeUpItemFragment.java': [10, 66, 67, 97, 98, 99, 100, 388, 389, 390, 391, 392, 393, 394, 395], './iHeima/src/sg/bigo/live/produce/record/sensear/controller/SensearManager.java': [939, 940, 941, 942, 943, 944, 945], './iHeima/src/sg/bigo/live/produce/record/filter/make_up/MakeUpItemAdapter.java': [34, 438, 439, 440, 441, 442, 443, 444, 445, 446, 447, 448, 449, 450, 451, 452, 453, 454, 455, 456, 457, 458, 459, 460, 461, 462, 463, 464, 465, 466, 467, 468]}
     get_project_and_file_path(local_git_repoisty_dir, get_diff_file_name_and_lines)
