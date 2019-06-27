@@ -50,10 +50,9 @@ def git_diff_by_file(lgr, A_V, B_V, diff_module, all_commit_in_feature_branch):
     """
     diff = {}
     for mp in diff_module:
-        print ("mp:",mp)
         classname = mp.split('/')[-1].strip()
         print("classname:", classname)
-        get_module_path = subprocess.getoutput('cd %s;find . -name "%s"' % (lgr, classname))
+        get_module_path = subprocess.getoutput('cd %s;find . -name "%s" | grep "%s" ' % (lgr, classname, mp))
         print("module_path:", get_module_path)
         cmd = ['cd %s; git blame %s' % (lgr, get_module_path)]
         try:
@@ -74,9 +73,7 @@ def git_diff_by_file(lgr, A_V, B_V, diff_module, all_commit_in_feature_branch):
         except Exception as e:
             print("fail by e:", e)
         if len(class_diff) != 0:
-            # diff[get_module_path] = class_diff
-            print ("insert_mp:",mp)
-            diff[mp] = class_diff
+            diff[get_module_path] = class_diff
     print("git_diff_by_file_diff", diff)
     return diff
 
