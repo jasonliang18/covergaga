@@ -73,7 +73,8 @@ def git_diff_by_file(lgr, A_V, B_V, diff_module, all_commit_in_feature_branch):
         except Exception as e:
             print("fail by e:", e)
         if len(class_diff) != 0:
-            diff[get_module_path] = class_diff
+            # diff[get_module_path] = class_diff
+            diff[mp] = class_diff
     print("git_diff_by_file_diff", diff)
     return diff
 
