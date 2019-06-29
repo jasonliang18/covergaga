@@ -189,7 +189,7 @@ def Diff_Line_Number(indexHtmlPath, number):
         s = soup.find("span", id="L" + str(i))
         # print("s  is ==", s)
         plus = soup.new_string("+")
-        if s is not None and s.string is not None:
+        if s is not None and s.string is not None and s.string.split() != ['}']:
             total_diff_number = total_diff_number + 1
             if s['class'][0] == 'fc':
                 diff_number = diff_number + 1
