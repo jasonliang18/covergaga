@@ -276,12 +276,36 @@ def insert_Total_Index_Html(indexHtmlPath, Name, DiffNum, CrNum, ImperNum):
     soup = BeautifulSoup(openFile(indexHtmlPath), 'lxml')
     num = soup.find_all(href=re.compile(fileName))
     print ("num_is:", num)
+    # if fileName[-5:] == ".html":
+    #     for i, j in enumerate(num):
+    #         if j.string == fileName[:-5]:
+    #             num[0] = j
+    #     print ("inset html file name is:", num)
+    # if len(num) >= 2:
+    #     for i, j in enumerate(num):
+    #         if j.string == fileName:
+    #             # del num[0]
+    #             num[0] = j
+    #     print("inset html file name is:", num)
+    # elif len(num) == 0:
+    #     fileName_new = "%s(\s\w+)?" % (fileName)[:-5]
+    #     num = soup.find_all(attrs={"href": re.compile(fileName_new)})
+    #     print("file name not find and replace by new num:", num)
+    #     if len(num) == 0:
+    #         print("this file ont find:", Name)
+    #         return
+    # print("href is :", num)
     if len(num) >= 2:
-        for i, j in enumerate(num):
-            if j.string == fileName:
-                # del num[0]
-                num[0] = j
-        print("inset html file name is:", num)
+        if fileName[-5:] == ".html":
+            for i, j in enumerate(num):
+                if j.string == fileName[:-5]:
+                    num[0] = j
+                    print ("inset html file name is:", num)
+        else:
+            for i, j in enumerate(num):
+                if j.string == fileName:
+                    num[0] = j
+                    print ("inset html file name is:", num)
     elif len(num) == 0:
         fileName_new = "%s(\s\w+)?" % (fileName)[:-5]
         num = soup.find_all(attrs={"href": re.compile(fileName_new)})
@@ -289,7 +313,8 @@ def insert_Total_Index_Html(indexHtmlPath, Name, DiffNum, CrNum, ImperNum):
         if len(num) == 0:
             print("this file ont find:", Name)
             return
-    # print("href is :", num)
+    print("href is :", num)
+
     try:
         CRN = num[0].parent.parent
         print("CRN.parent.parent is ：", CRN)
@@ -409,5 +434,5 @@ if __name__ == "__main__":
     get_diff_file_name_and_lines = git_diff_by_file(local_git_repoisty_dir, A_V, B_V, get_version_diff_name,
                                                     get_all_commit_in_current_branch)
     # local_git_repoisty_dir = "/Users/billli/Downloads/reports/jacoco/jacocoReport/html"
-    # get_diff_file_name_and_lines = {'./iHeima/src/sg/bigo/live/produce/edit/EditorPresenter.java': [29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 41, 42, 61, 460, 461, 462, 463, 464, 465, 466, 467, 468, 469, 470, 479, 480, 481, 482, 483, 484, 485]}
+    # get_diff_file_name_and_lines = {'./iHeimaLib/src/sg/bigo/live/protocol/filter/FetchFilterGroupsProtocol.java': [ 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52]}
     get_project_and_file_path(local_git_repoisty_dir, get_diff_file_name_and_lines)
