@@ -74,6 +74,8 @@ def git_diff_by_file(lgr, A_V, B_V, diff_module, all_commit_in_feature_branch):
             print("fail by e:", e)
         if len(class_diff) != 0:
             diff[get_module_path] = class_diff
+        if out_tmp:
+            out_tmp.close()
     print("git_diff_by_file_diff", diff)
     return diff
 
@@ -254,7 +256,7 @@ def update_Index_Html_File(htmlPath):
 def openFile(index_Html_File_Path):
     filePath = open(index_Html_File_Path)
     data = filePath.read()
-    filePath.close
+    filePath.close()
     return data
 
 
