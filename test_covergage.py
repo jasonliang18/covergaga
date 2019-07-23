@@ -423,44 +423,43 @@ def get_all_commit_in_current_branch(lgr, is_main_branch, A_V, B_V):
         if out_tmp:
             out_tmp.close()
 
-def send_report_to_platform(app_name, task_num, local_git_repoisty_dir, build_num):
-    '''
-    发送报告到测试平台
-    formdate = {
-    "diffNum":"1200",
-    "imperNum":"132",
-    "coverNum":"889",
-    "appName":"Likee",
-    "taskNum":"1235",
-    "reportUrl":"http://14.29.89.96:8094/Sites/like-android_jacoco_2/336/index.html",
-    "machVersion":"IOS",
-    "buildNum":"502"
-    }
-    :param app_name: 产品名称,如：likee
-    :param task_num: 需求编号,如：1000
-    :return:
-    '''
-    if task_num == "1000":
-        pass
-    else:
-        fileName = local_git_repoisty_dir + '/index.html'
-        soup = BeautifulSoup(openFile(fileName), 'lxml')
-        coverNum = soup.find(id='TCR').string
-        imperNum = soup.find(id='IMP').string
-        diffNum = soup.find(id='u').string
-        reportUrl = 'http://14.29.89.96:8094/Sites/like-android_jacoco_2/{}/index.html'.format(build_num)
-        formdate ={
-            "diffNum": diffNum,
-            "imperNum": imperNum,
-            "coverNum": coverNum,
-            "appName": app_name,
-            "taskNum": task_num,
-            "reportUrl": reportUrl,
-            "machVersion": "android",
-            "buildNum": build_num
-        }
-        response = requests.post("http://172.24.117.181:8000/report/insertcaveragereport/", formdate)
-        print response.text
+# def send_report_to_platform(app_name, task_num, local_git_repoisty_dir, build_num):
+#     '''
+#     发送报告到测试平台
+#     formdate = {
+#     "diffNum":"1200",
+#     "imperNum":"132",
+#     "coverNum":"889",
+#     "appName":"Likee",
+#     "taskNum":"1235",
+#     "reportUrl":"http://14.29.89.96:8094/Sites/like-android_jacoco_2/336/index.html",
+#     "machVersion":"IOS",
+#     "buildNum":"502"
+#     }
+#     :param app_name: 产品名称,如：likee
+#     :param task_num: 需求编号,如：1000
+#     :return:
+#     '''
+#     if task_num == "1000":
+#         pass
+#     else:
+#         fileName = local_git_repoisty_dir + '/index.html'
+#         soup = BeautifulSoup(openFile(fileName), 'lxml')
+#         coverNum = soup.find(id='TCR').string
+#         imperNum = soup.find(id='IMP').string
+#         diffNum = soup.find(id='u').string
+#         reportUrl = 'http://14.29.89.96:8094/Sites/like-android_jacoco_2/{}/index.html'.format(build_num)
+#         formdate ={
+#             "diffNum": diffNum,
+#             "imperNum": imperNum,
+#             "coverNum": coverNum,
+#             "appName": app_name,
+#             "taskNum": task_num,
+#             "reportUrl": reportUrl,
+#             "machVersion": "android",
+#             "buildNum": build_num
+#         }
+#         response = requests.post("http://172.24.117.181:8000/report/insertcaveragereport/", formdate)
 
 
 if __name__ == "__main__":
