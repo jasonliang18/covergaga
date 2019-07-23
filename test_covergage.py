@@ -93,7 +93,6 @@ def get_project_and_file_path(root_dir, java_file):
         # print("K is:", k, "V is:", v)
         JavaFileName = k.split('/')[-1].strip()
         insertFileName = JavaFileName[:-5]
-        print ('insertFileName:',insertFileName)
         # ValueLen = len(v)
         for parent, dirnames, fileNames in os.walk(root_dir):
             for fileName in fileNames:
@@ -101,13 +100,11 @@ def get_project_and_file_path(root_dir, java_file):
                 indexNamePath = os.path.join(parent, "index.html")
                 if JavaFileName + ".html" == fileName:
                     # java中变更行数材，插入+到对应java.html文件中，并返回覆盖行数、总变更数
-                    print ('fileNamePath:',fileNamePath)
                     DiffLineNumber, total_diff_number, imperfect_number = Diff_Line_Number(fileNamePath, v)
                     # 没有新增代码则不做为0插入（代码有新增，但不是主要方法，主要为常量、import包、空格等）
                     if total_diff_number == 0:
                         continue
                     # 更改index.html文件布局，在后面插入列
-                    print ('indexNamePath:',indexNamePath)
                     update_Index_Html_File(indexNamePath)
                     insertFileNames = insertFileName + ".html"
                     # 插入结果到对应包名下（java.html文件统计页）index.html文件
@@ -118,13 +115,10 @@ def get_project_and_file_path(root_dir, java_file):
                     insertIndexFileName = (fileNamePath.split('/')[-2].split())
                     # 增加一层判断，路径名不对的排除掉
                     k_new = '.'.join(k.split('/')[3:-1])
-                    print ('k_new',k_new)
                     if insertIndexFileName[0] != k_new:
                         continue
                     update_Index_Html_File(indexFilePath)
-                    print ("indexFilePathNum:",indexFilePath,insertFileName)
                     # 根目录index.html插入包代码覆盖、和新增
-                    print ('insertIndexFileName:',insertIndexFileName)
                     insert_Total_Index_Html(indexFilePath, insertIndexFileName, totalDiffLine, totalTRLine, totalIMPLine)
                     # 统计所有新增和覆盖结果
                     get_diff_total_line(indexFilePath)
