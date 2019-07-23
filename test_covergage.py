@@ -1,9 +1,12 @@
 # coding=utf-8
 
 from cmath import e
-from bs4 import BeautifulSoup, Comment
-from itertools import islice
-import os, sys, tempfile, subprocess, re
+
+import gc
+import requests
+import sys
+from bs4 import BeautifulSoup
+import os, tempfile, subprocess, re
 
 
 def get_diff_by_version(lgr, A_V, B_V):
@@ -79,7 +82,6 @@ def git_diff_by_file(lgr, A_V, B_V, diff_module, all_commit_in_feature_branch):
     print("git_diff_by_file_diff", diff)
     return diff
 
-
 def get_project_and_file_path(root_dir, java_file):
     """
     增量统计代码覆盖主方法.
@@ -88,9 +90,10 @@ def get_project_and_file_path(root_dir, java_file):
     """
     # print("value:", java_file)
     for k, v in java_file.items():
-        print("K is:", k, "V is:", v)
+        # print("K is:", k, "V is:", v)
         JavaFileName = k.split('/')[-1].strip()
         insertFileName = JavaFileName[:-5]
+        print ('insertFileName:',insertFileName)
         # ValueLen = len(v)
         for parent, dirnames, fileNames in os.walk(root_dir):
             for fileName in fileNames:
@@ -98,11 +101,13 @@ def get_project_and_file_path(root_dir, java_file):
                 indexNamePath = os.path.join(parent, "index.html")
                 if JavaFileName + ".html" == fileName:
                     # java中变更行数材，插入+到对应java.html文件中，并返回覆盖行数、总变更数
+                    print ('fileNamePath:',fileNamePath)
                     DiffLineNumber, total_diff_number, imperfect_number = Diff_Line_Number(fileNamePath, v)
                     # 没有新增代码则不做为0插入（代码有新增，但不是主要方法，主要为常量、import包、空格等）
                     if total_diff_number == 0:
                         continue
                     # 更改index.html文件布局，在后面插入列
+                    print ('indexNamePath:',indexNamePath)
                     update_Index_Html_File(indexNamePath)
                     insertFileNames = insertFileName + ".html"
                     # 插入结果到对应包名下（java.html文件统计页）index.html文件
@@ -113,14 +118,17 @@ def get_project_and_file_path(root_dir, java_file):
                     insertIndexFileName = (fileNamePath.split('/')[-2].split())
                     # 增加一层判断，路径名不对的排除掉
                     k_new = '.'.join(k.split('/')[3:-1])
+                    print ('k_new',k_new)
                     if insertIndexFileName[0] != k_new:
                         continue
                     update_Index_Html_File(indexFilePath)
-                    print ("indexFilePathNum:",indexFilePath,totalDiffLine, totalTRLine, totalIMPLine)
+                    print ("indexFilePathNum:",indexFilePath,insertFileName)
                     # 根目录index.html插入包代码覆盖、和新增
+                    print ('insertIndexFileName:',insertIndexFileName)
                     insert_Total_Index_Html(indexFilePath, insertIndexFileName, totalDiffLine, totalTRLine, totalIMPLine)
                     # 统计所有新增和覆盖结果
                     get_diff_total_line(indexFilePath)
+                    gc.collect()
 
 
 def get_diff_total_line(indexHtmlPath):
@@ -132,7 +140,6 @@ def get_diff_total_line(indexHtmlPath):
     soup = BeautifulSoup(openFile(indexHtmlPath), 'lxml')
     #对应包的修改行数
     a = soup.find_all(id="DiffN")
-
     for k in a:
         DiffNum += int(k.string)
         totalDiffNum = soup.find(id="u")
@@ -422,6 +429,45 @@ def get_all_commit_in_current_branch(lgr, is_main_branch, A_V, B_V):
         if out_tmp:
             out_tmp.close()
 
+def send_report_to_platform(app_name, task_num, local_git_repoisty_dir, build_num):
+    '''
+    发送报告到测试平台
+    formdate = {
+    "diffNum":"1200",
+    "imperNum":"132",
+    "coverNum":"889",
+    "appName":"Likee",
+    "taskNum":"1235",
+    "reportUrl":"http://14.29.89.96:8094/Sites/like-android_jacoco_2/336/index.html",
+    "machVersion":"IOS",
+    "buildNum":"502"
+    }
+    :param app_name: 产品名称,如：likee
+    :param task_num: 需求编号,如：1000
+    :return:
+    '''
+    if task_num == "1000":
+        pass
+    else:
+        fileName = local_git_repoisty_dir + '/index.html'
+        soup = BeautifulSoup(openFile(fileName), 'lxml')
+        coverNum = soup.find(id='TCR').string
+        imperNum = soup.find(id='IMP').string
+        diffNum = soup.find(id='u').string
+        reportUrl = 'http://14.29.89.96:8094/Sites/like-android_jacoco_2/{}/index.html'.format(build_num)
+        formdate ={
+            "diffNum": diffNum,
+            "imperNum": imperNum,
+            "coverNum": coverNum,
+            "appName": app_name,
+            "taskNum": task_num,
+            "reportUrl": reportUrl,
+            "machVersion": "android",
+            "buildNum": build_num
+        }
+        response = requests.post("http://172.24.117.181:8000/report/insertcaveragereport/", formdate)
+        print response.text
+
 
 if __name__ == "__main__":
     local_git_repoisty_dir = "/data/jenkins/workspace/workspace/like-android_jacoco_2"
@@ -429,6 +475,8 @@ if __name__ == "__main__":
     A_V = sys.argv[1]
     B_V = sys.argv[2]
     app_name = sys.argv[3]
+    task_num = sys.argv[4]
+    build_num = sys.argv[5]
     get_version_diff_name = get_diff_by_version(local_git_repoisty_dir, A_V, B_V)
     get_all_commit_in_current_branch = get_all_commit_in_current_branch(local_git_repoisty_dir,
                                                                         is_main_branch(local_git_repoisty_dir,
@@ -436,5 +484,6 @@ if __name__ == "__main__":
     get_diff_file_name_and_lines = git_diff_by_file(local_git_repoisty_dir, A_V, B_V, get_version_diff_name,
                                                     get_all_commit_in_current_branch)
     # local_git_repoisty_dir = "/Users/billli/Downloads/reports/jacoco/jacocoReport/html"
-    # get_diff_file_name_and_lines = {'./iHeimaLib/src/sg/bigo/live/protocol/filter/FetchFilterGroupsProtocol.java': [ 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52]}
+    # get_diff_file_name_and_lines ={'./iHeima/src/sg/bigo/live/produce/record/photomood/model/protocol/FetchPhotoMoodFilter.java': [6, 11, 12, 13, 15, 24, 37, 38, 39, 40, 47, 48, 49, 50, 51, 54, 75, 77]}
     get_project_and_file_path(local_git_repoisty_dir, get_diff_file_name_and_lines)
+    # send_report_to_platform(app_name, task_num, local_git_repoisty_dir, build_num)
