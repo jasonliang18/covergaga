@@ -8,6 +8,8 @@ import sys
 from bs4 import BeautifulSoup
 import os, tempfile, subprocess, re
 
+from concurrent.futures import ThreadPoolExecutor
+
 
 def get_diff_by_version(lgr, A_V, B_V):
     """
@@ -82,47 +84,50 @@ def git_diff_by_file(lgr, A_V, B_V, diff_module, all_commit_in_feature_branch):
     print("git_diff_by_file_diff", diff)
     return diff
 
-def get_project_and_file_path(root_dir, java_file):
+
+def get_project_and_file_path(root_dir, k, v):
     """
     增量统计代码覆盖主方法.
     :param root_dir: git 项目的文件夹（jacoco 报告文件夹）.
     :param java_file: 改变的Java 的文件名字和修改的行数["a.java":[1,2,3],"b.java":[4,5]].
     """
     # print("value:", java_file)
-    for k, v in java_file.items():
-        # print("K is:", k, "V is:", v)
-        JavaFileName = k.split('/')[-1].strip()
-        insertFileName = JavaFileName[:-5]
-        # ValueLen = len(v)
-        for parent, dirnames, fileNames in os.walk(root_dir):
-            for fileName in fileNames:
-                fileNamePath = os.path.join(parent, fileName)
-                indexNamePath = os.path.join(parent, "index.html")
-                if JavaFileName + ".html" == fileName:
-                    # java中变更行数材，插入+到对应java.html文件中，并返回覆盖行数、总变更数
-                    DiffLineNumber, total_diff_number, imperfect_number = Diff_Line_Number(fileNamePath, v)
-                    # 没有新增代码则不做为0插入（代码有新增，但不是主要方法，主要为常量、import包、空格等）
-                    if total_diff_number == 0:
-                        continue
-                    # 更改index.html文件布局，在后面插入列
-                    update_Index_Html_File(indexNamePath)
-                    insertFileNames = insertFileName + ".html"
-                    # 插入结果到对应包名下（java.html文件统计页）index.html文件
-                    insert_Total_Index_Html(indexNamePath, insertFileNames, total_diff_number, DiffLineNumber, imperfect_number)
-                    # 插入包路径下index.html 覆盖统计
-                    totalDiffLine, totalTRLine, totalIMPLine = update_Total_Html(indexNamePath, total_diff_number, DiffLineNumber, imperfect_number)
-                    indexFilePath = os.path.dirname(parent) + "/index.html"
-                    insertIndexFileName = (fileNamePath.split('/')[-2].split())
-                    # 增加一层判断，路径名不对的排除掉
-                    k_new = '.'.join(k.split('/')[3:-1])
-                    if insertIndexFileName[0] != k_new:
-                        continue
-                    update_Index_Html_File(indexFilePath)
-                    # 根目录index.html插入包代码覆盖、和新增
-                    insert_Total_Index_Html(indexFilePath, insertIndexFileName, totalDiffLine, totalTRLine, totalIMPLine)
-                    # 统计所有新增和覆盖结果
-                    get_diff_total_line(indexFilePath)
-                    gc.collect()
+    # for k, v in java_file.items():
+    # print("K is:", k, "V is:", v)
+    JavaFileName = k.split('/')[-1].strip()
+    insertFileName = JavaFileName[:-5]
+    # ValueLen = len(v)
+    for parent, dirnames, fileNames in os.walk(root_dir):
+        for fileName in fileNames:
+            fileNamePath = os.path.join(parent, fileName)
+            indexNamePath = os.path.join(parent, "index.html")
+            if JavaFileName + ".html" == fileName:
+                # java中变更行数材，插入+到对应java.html文件中，并返回覆盖行数、总变更数
+                DiffLineNumber, total_diff_number, imperfect_number = Diff_Line_Number(fileNamePath, v)
+                # 没有新增代码则不做为0插入（代码有新增，但不是主要方法，主要为常量、import包、空格等）
+                if total_diff_number == 0:
+                    continue
+                # 更改index.html文件布局，在后面插入列
+                update_Index_Html_File(indexNamePath)
+                insertFileNames = insertFileName + ".html"
+                # 插入结果到对应包名下（java.html文件统计页）index.html文件
+                insert_Total_Index_Html(indexNamePath, insertFileNames, total_diff_number, DiffLineNumber,
+                                        imperfect_number)
+                # 插入包路径下index.html 覆盖统计
+                totalDiffLine, totalTRLine, totalIMPLine = update_Total_Html(indexNamePath, total_diff_number,
+                                                                             DiffLineNumber, imperfect_number)
+                indexFilePath = os.path.dirname(parent) + "/index.html"
+                insertIndexFileName = (fileNamePath.split('/')[-2].split())
+                # 增加一层判断，路径名不对的排除掉
+                k_new = '.'.join(k.split('/')[3:-1])
+                if insertIndexFileName[0] != k_new:
+                    continue
+                update_Index_Html_File(indexFilePath)
+                # 根目录index.html插入包代码覆盖、和新增
+                insert_Total_Index_Html(indexFilePath, insertIndexFileName, totalDiffLine, totalTRLine, totalIMPLine)
+                # 统计所有新增和覆盖结果
+                get_diff_total_line(indexFilePath)
+                gc.collect()
 
 
 def get_diff_total_line(indexHtmlPath):
@@ -132,7 +137,7 @@ def get_diff_total_line(indexHtmlPath):
     """
     DiffNum = 0
     soup = BeautifulSoup(openFile(indexHtmlPath), 'lxml')
-    #对应包的修改行数
+    # 对应包的修改行数
     a = soup.find_all(id="DiffN")
     for k in a:
         DiffNum += int(k.string)
@@ -423,6 +428,7 @@ def get_all_commit_in_current_branch(lgr, is_main_branch, A_V, B_V):
         if out_tmp:
             out_tmp.close()
 
+
 # def send_report_to_platform(app_name, task_num, local_git_repoisty_dir, build_num):
 #     '''
 #     发送报告到测试平台
@@ -476,7 +482,12 @@ if __name__ == "__main__":
                                                                                        app_name), A_V, B_V)
     get_diff_file_name_and_lines = git_diff_by_file(local_git_repoisty_dir, A_V, B_V, get_version_diff_name,
                                                     get_all_commit_in_current_branch)
-    # local_git_repoisty_dir = "/Users/billli/Downloads/reports/jacoco/jacocoReport/html"
-    # get_diff_file_name_and_lines ={'./iHeima/src/sg/bigo/live/produce/record/photomood/model/protocol/FetchPhotoMoodFilter.java': [6, 11, 12, 13, 15, 24, 37, 38, 39, 40, 47, 48, 49, 50, 51, 54, 75, 77]}
-    get_project_and_file_path(local_git_repoisty_dir, get_diff_file_name_and_lines)
-    # send_report_to_platform(app_name, task_num, local_git_repoisty_dir, build_num)
+    executor = ThreadPoolExecutor(6)
+    fs = []  # future列表
+    for k, v in get_diff_file_name_and_lines.items():
+        fs.append(executor.submit(get_project_and_file_path, local_git_repoisty_dir, k, v))
+    executor.shutdown()  # 销毁线程池
+        # local_git_repoisty_dir = "/Users/billli/Downloads/reports/jacoco/jacocoReport/html"
+        # get_diff_file_name_and_lines ={'./iHeima/src/sg/bigo/live/produce/record/photomood/model/protocol/FetchPhotoMoodFilter.java': [6, 11, 12, 13, 15, 24, 37, 38, 39, 40, 47, 48, 49, 50, 51, 54, 75, 77]}
+        # get_project_and_file_path(local_git_repoisty_dir, get_diff_file_name_and_lines)
+        # send_report_to_platform(app_name, task_num, local_git_repoisty_dir, build_num)
