@@ -423,43 +423,43 @@ def get_all_commit_in_current_branch(lgr, is_main_branch, A_V, B_V):
         if out_tmp:
             out_tmp.close()
 
-# def send_report_to_platform(app_name, task_num, local_git_repoisty_dir, build_num):
-#     '''
-#     发送报告到测试平台
-#     formdate = {
-#     "diffNum":"1200",
-#     "imperNum":"132",
-#     "coverNum":"889",
-#     "appName":"Likee",
-#     "taskNum":"1235",
-#     "reportUrl":"http://14.29.89.96:8094/Sites/like-android_jacoco_2/336/index.html",
-#     "machVersion":"IOS",
-#     "buildNum":"502"
-#     }
-#     :param app_name: 产品名称,如：likee
-#     :param task_num: 需求编号,如：1000
-#     :return:
-#     '''
-#     if task_num == "1000":
-#         pass
-#     else:
-#         fileName = local_git_repoisty_dir + '/index.html'
-#         soup = BeautifulSoup(openFile(fileName), 'lxml')
-#         coverNum = soup.find(id='TCR').string
-#         imperNum = soup.find(id='IMP').string
-#         diffNum = soup.find(id='u').string
-#         reportUrl = 'http://14.29.89.96:8094/Sites/like-android_jacoco_2/{}/index.html'.format(build_num)
-#         formdate ={
-#             "diffNum": diffNum,
-#             "imperNum": imperNum,
-#             "coverNum": coverNum,
-#             "appName": app_name,
-#             "taskNum": task_num,
-#             "reportUrl": reportUrl,
-#             "machVersion": "android",
-#             "buildNum": build_num
-#         }
-#         response = requests.post("http://172.24.117.181:8000/report/insertcaveragereport/", formdate)
+def send_report_to_platform(app_name, task_num, local_git_repoisty_dir, build_num):
+    '''
+    发送报告到测试平台
+    formdate = {
+    "diffNum":"1200",
+    "imperNum":"132",
+    "coverNum":"889",
+    "appName":"Likee",
+    "taskNum":"1235",
+    "reportUrl":"http://14.29.89.96:8094/Sites/like-android_jacoco_2/336/index.html",
+    "machVersion":"IOS",
+    "buildNum":"502"
+    }
+    :param app_name: 产品名称,如：likee
+    :param task_num: 需求编号,如：1000
+    :return:
+    '''
+    if task_num == "1000":
+        pass
+    else:
+        fileName = local_git_repoisty_dir + '/index.html'
+        soup = BeautifulSoup(openFile(fileName), 'lxml')
+        coverNum = soup.find(id='TCR').string
+        imperNum = soup.find(id='IMP').string
+        diffNum = soup.find(id='u').string
+        reportUrl = 'http://14.29.89.96:8094/Sites/like-android_jacoco_2/{}/index.html'.format(build_num)
+        formdate ={
+            "diffNum": diffNum,
+            "imperNum": imperNum,
+            "coverNum": coverNum,
+            "appName": app_name,
+            "taskNum": task_num,
+            "reportUrl": reportUrl,
+            "machVersion": "android",
+            "buildNum": build_num
+        }
+        response = requests.post("http://monkey.bigo.local:8000/report/insertcaveragereport/", formdate)
 
 
 if __name__ == "__main__":
@@ -476,7 +476,8 @@ if __name__ == "__main__":
                                                                                        app_name), A_V, B_V)
     get_diff_file_name_and_lines = git_diff_by_file(local_git_repoisty_dir, A_V, B_V, get_version_diff_name,
                                                     get_all_commit_in_current_branch)
+
     # local_git_repoisty_dir = "/Users/billli/Downloads/reports/jacoco/jacocoReport/html"
-    # get_diff_file_name_and_lines ={'./iHeima/src/sg/bigo/live/produce/record/photomood/model/protocol/FetchPhotoMoodFilter.java': [6, 11, 12, 13, 15, 24, 37, 38, 39, 40, 47, 48, 49, 50, 51, 54, 75, 77]}
+    # get_diff_file_name_and_lines ={}
     get_project_and_file_path(local_git_repoisty_dir, get_diff_file_name_and_lines)
-    # send_report_to_platform(app_name, task_num, local_git_repoisty_dir, build_num)
+    send_report_to_platform(app_name, task_num, local_git_repoisty_dir, build_num)
