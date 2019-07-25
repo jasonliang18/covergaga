@@ -54,9 +54,9 @@ def git_diff_by_file(lgr, A_V, B_V, diff_module, all_commit_in_feature_branch):
     diff = {}
     for mp in diff_module:
         classname = mp.split('/')[-1].strip()
-        print("classname:", classname)
+        # print("classname:", classname)
         get_module_path = subprocess.getoutput('cd %s;find . -name "%s" | grep "%s" ' % (lgr, classname, mp))
-        print("module_path:", get_module_path)
+        # print("module_path:", get_module_path)
         cmd = ['cd %s; git blame %s' % (lgr, get_module_path)]
         try:
             out_tmp = tempfile.SpooledTemporaryFile(max_size=10 * 1000)
