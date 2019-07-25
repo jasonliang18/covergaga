@@ -443,7 +443,7 @@ def send_report_to_platform(app_name, task_num, local_git_repoisty_dir, build_nu
     if task_num == "1000":
         pass
     else:
-        fileName = local_git_repoisty_dir + '/ws/iHeima/build/reports/jacoco/jacocoReport/html/index.html'
+        fileName = local_git_repoisty_dir + '/iHeima/build/reports/jacoco/jacocoReport/html/index.html'
         print ('filename:',fileName)
         soup = BeautifulSoup(openFile(fileName), 'lxml')
         coverNum = soup.find(id='TCR').string
