@@ -460,7 +460,7 @@ def send_report_to_platform(app_name, task_num, local_git_repoisty_dir, build_nu
             "machVersion": "android",
             "buildNum": build_num
         }
-        response = requests.post("http://monkey.bigo.local:8000/report/insertcaveragereport/", formdate)
+        response = requests.post("http://172.24.80.127:8000/report/insertcaveragereport/", formdate)
 
 
 if __name__ == "__main__":
