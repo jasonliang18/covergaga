@@ -402,11 +402,9 @@ def get_all_commit_in_current_branch(lgr, is_main_branch, A_V, B_V):
     :return: 两个commitid之间所有当前分支的commitid.
     """
     if (is_main_branch):
-        # cmd_get_all_commit = ['cd %s; git log %s...%s --format="%%H" ' % (lgr, A_V, B_V)]
-        cmd_get_all_commit = ['cd %s; git log %s...%s --format="%H" ' % (lgr, A_V, B_V)]
+        cmd_get_all_commit = ['cd %s; git log %s...%s --format="%%H" ' % (lgr, A_V, B_V)]
     else:
-        # cmd_get_all_commit = ['cd %s; git log %s...%s --no-merges --first-parent --format="%%H" ' % (lgr, A_V, B_V)]
-        cmd_get_all_commit = ['cd %s; git log %s...%s --no-merges --first-parent --format="%H" ' % (lgr, A_V, B_V)]
+        cmd_get_all_commit = ['cd %s; git log %s...%s --no-merges --first-parent --format="%%H" ' % (lgr, A_V, B_V)]
 
     result = []
     try:
