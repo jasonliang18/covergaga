@@ -423,6 +423,7 @@ def get_all_commit_in_current_branch(lgr, is_main_branch, A_V, B_V):
         if out_tmp:
             out_tmp.close()
 
+
 def send_report_to_platform(app_name, task_num, local_git_repoisty_dir, build_num):
     '''
     发送报告到测试平台
