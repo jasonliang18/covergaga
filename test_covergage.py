@@ -465,6 +465,9 @@ def send_report_to_platform(app_name, task_num, local_git_repoisty_dir, build_nu
 
 
 if __name__ == "__main__":
+    '''
+    测试而已
+    '''
     local_git_repoisty_dir = "/data/jenkins/workspace/workspace/like-android_jacoco_2"
     print("local_git_repoisty_dir is :", local_git_repoisty_dir)
     A_V = sys.argv[1]
