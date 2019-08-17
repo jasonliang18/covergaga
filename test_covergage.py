@@ -469,6 +469,7 @@ def get_all_commit_in_current_branch(lgr, is_main_branch, A_V, B_V):
 
 
 if __name__ == "__main__":
+    'test2'
     local_git_repoisty_dir = "/data/jenkins/workspace/workspace/like-android_jacoco_2"
     print("local_git_repoisty_dir is :", local_git_repoisty_dir)
     A_V = sys.argv[1]
